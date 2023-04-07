@@ -1,0 +1,5 @@
+dist/**
+build/**
+luau.egg-info
+.pypirc
+scripts/upload.sh
