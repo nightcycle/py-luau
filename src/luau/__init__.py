@@ -1,144 +1,84 @@
-import re
-from typing import Any
-
 # creates a recursive luau table
-def insert_comma(enabled: bool) -> str:
-	if enabled:
-		return ","
-	else:
-		return ""
+def import_type(module_variable_name: str, type_name: str, type_local_name="") -> str:
+	if type_local_name == "":
+		type_local_name = type_name
 
-def get_indent(indent_count: int) -> str:
-	return "\t"*indent_count
+	return f"type {type_local_name} = {module_variable_name}.{type_name}"	
 
-def dump_bool(value: bool, indent_count=0, add_comma_at_end=False) -> str:
-	return get_indent(indent_count) + str(value).lower() + insert_comma(add_comma_at_end)
+def indent_block(content: list[str], indent_count: int = 1) -> list[str]:
+	out = []
+	for line in content:
+		out.append(("\t"*indent_count)+line)
 
-def dump_str(value: str, indent_count=0, add_comma_at_end=False) -> str:
-	return get_indent(indent_count) + f"\"{value}\"" + insert_comma(add_comma_at_end)
-
-def dump_number(value: int | float, indent_count=0, add_comma_at_end=False) -> str:
-	return get_indent(indent_count) + str(value) + insert_comma(add_comma_at_end)
-
-def dump_nil(indent_count=0, add_comma_at_end=False) -> str:
-	return f"{get_indent(indent_count)} nil" + insert_comma(add_comma_at_end)
-
-
-def dump_list(value: list, indent_count=0, add_comma_at_end=False, multi_line=True, skip_initial_indent=False):
-	
-	# start list
-	list_val = ""
-	if skip_initial_indent:
-		list_val += "{"
-	else:
-		list_val += get_indent(indent_count) + "{"
-
-	# iterate through values
-	for v in value:
-		
-		# write entry
-		if type(v) == dict or type(v) == list:
-			entry = dump(v, indent_count+1, False, multi_line, True) + insert_comma(True)
-		else:
-			entry = dump(v, indent_count, False, multi_line, True) + insert_comma(True)
-
-		# add it to existing string
-		if multi_line:
-			list_val += "\n" + get_indent(indent_count+1) + entry
-		else:
-			list_val += entry
-
-	# end the table on a new line if multi-line
-	if multi_line:
-		list_val += "\n" + get_indent(indent_count)
-
-	# close the table
-	list_val += "}"
-
-	# indent as needed and return value
-	return get_indent(indent_count) + list_val + insert_comma(add_comma_at_end)
-
-def dump_dict(value: dict, indent_count=0, add_comma_at_end=False, multi_line=True, skip_initial_indent=False):
-	
-	# start dictionary
-	list_val = ""
-	if skip_initial_indent:
-		list_val += "{"
-	else:
-		list_val += get_indent(indent_count) + "{"
-
-	# iterate through key-val pairs
-	for k, v in value.items():
-
-		# write entry
-		if type(v) == dict or type(v) == list:
-			entry = f"[{dump(k, 0, False)}] = {dump(v, indent_count+1, False, multi_line, True)}" + insert_comma(True)
-		else:
-			entry = f"[{dump(k, 0, False)}] = {dump(v, 0, False, multi_line, True)}" + insert_comma(True)
-
-		# add it to existing string
-		if multi_line:
-			list_val += "\n" + get_indent(indent_count+1) + entry
-		else:
-			list_val += entry
-
-	# end the table on a new line if multi-line
-	if multi_line:
-		list_val += "\n" + get_indent(indent_count)
-
-	# close the table
-	list_val += "}"
-
-	# indent as needed and return value
-	if skip_initial_indent:
-		return get_indent(0) + list_val + insert_comma(add_comma_at_end)
-	else:
-		return get_indent(indent_count) + list_val + insert_comma(add_comma_at_end)
-
-def dump_type(type_table: dict, indent_count=0, skip_initial_indent=False, add_comma_at_end = False) -> str:
-	out = ""
-	if skip_initial_indent:
-		out += "{"
-	else:
-		out += get_indent(indent_count) + "{"
-
-	for k in type_table:
-		v = type_table[k]
-
-		# write entry
-		if type(v) == dict or type(v) == list:
-			entry = f"{k}: {dump_type(type_table, indent_count+1, True, False)}" + insert_comma(True)
-		else:
-			entry = f"{k}: {v}" + insert_comma(True)
-	
-		out += "\n" + get_indent(indent_count+1) + entry
-
-	out += "\n" + get_indent(indent_count) + "}" + insert_comma(add_comma_at_end)
 	return out
 
-def dump(
-	value: int | str | None | float | dict | list = None, 
-	indent_count = 0, 
-	add_comma_at_end = False, 
-	multi_line=True,
-	skip_initial_indent=False
-) -> str:
+def define_variable(
+	variable_name: str, 
+	value: str | None = None, 
+	type_name: str | None = None, 
+	is_private: bool = False, 
+	include_semi_colon: bool = False
+):
+	final_variable_name = variable_name
+	if is_private:
+		final_variable_name = "_"+final_variable_name
 
-	if type(value) == list:
+	definition = f"local {final_variable_name}"
+	if type_name != None:
+		definition += f": {type_name}"
 
-		return dump_list(value, indent_count, add_comma_at_end, multi_line, skip_initial_indent)
+	statement = definition
+	if value != None:
+		statement = f"{definition} = {value}"
 
-	elif type(value) == dict:
-		
-		return dump_dict(value, indent_count, add_comma_at_end, multi_line, skip_initial_indent)
+	if include_semi_colon:
+		return statement + ";"
+	else:
+		return statement	
 
-	elif type(value) == float or type(value) == int:
-		return dump_number(value, indent_count, add_comma_at_end)
-		
-	elif type(value) == bool:
-		return dump_bool(value, indent_count, add_comma_at_end)
-		
-	elif type(value) == str:
-		return dump_str(value, indent_count, add_comma_at_end)
-		
-	return dump_nil(indent_count, add_comma_at_end)
+def get_function_header(name: str = "", parameters: list=[], return_type="", is_local: bool=False) -> str:
+	assert name != "" or is_local==False, "you can't have a nameless local function"
+
+	final_name_text = ""
+	if name != "":
+		final_name_text = " "+name
+
+	local_text = ""
+	if is_local:
+		local_text = "local "
+
+	param_text = ",".join(parameters)
+
+	return_text = ""
+	if return_type != "":
+		return_text += f": {return_type}"
+
+	return f"{local_text}function{final_name_text}({param_text}){return_text}"
+
+def get_function_call(name: str="", object_name:str="", parameters: list=[]) -> str:
+	object_text = ""
+	if object_name != "":
+
+		def get_first_letter(string):
+			if not string:
+				return None
+			for char in string:
+				if char.isalpha():
+					return char
+			
+			return None
+
+		first_letter = get_first_letter(name)
+		if first_letter != None:
+			if first_letter.isupper():
+				object_text = object_text+":"
+			else:
+				object_text = object_text+"."
+		else:
+			object_text = object_name
+
+	reference = object_text+name
+
+	param_text = ",".join(parameters)
+
+	return f"{reference}({param_text})"

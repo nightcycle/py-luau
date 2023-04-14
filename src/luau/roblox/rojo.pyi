@@ -1,0 +1,9 @@
+from .tool import get_tool_name as get_tool_name
+
+DEFAULT_ROJO_PROJECT_PATH: str
+ROJO_SOURCE: str
+ROJO_VERSION: str
+
+def get_rojo_project_path() -> str: ...
+def get_rojo_name() -> str: ...
+def build_sourcemap(project_json_path: str = ...): ...
