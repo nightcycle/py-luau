@@ -17,7 +17,7 @@ def get_instance_from_path(path: str) -> str:
 	return roblox_path
 
 def get_module_require(path: str):
-	return f"require({path})"
+	return f"require({get_instance_from_path(path)})"
 
 def get_header_module(path: str, variable_name: str = ""):
 	if variable_name == "":

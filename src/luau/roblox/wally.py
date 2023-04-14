@@ -5,7 +5,7 @@ from .rojo import get_rojo_project_path, get_rojo_name, build_sourcemap
 
 WALLY_SOURCE = "UpliftGames/wally"
 WALLY_VERSION = "0.3.1"
-WPT_SOURCE = "wally-package-types"
+WPT_SOURCE = "JohnnyMorganz/wally-package-types"
 WPT_VERSION = "1.2.0"
 
 def get_wally_name():
@@ -26,12 +26,12 @@ def update_wally():
 	build_sourcemap()
 	os.system(f"{wpt_tool_name} --sourcemap sourcemap.json Packages")
 
-def get_wally_package_nickname(package_wally_path: str) -> str:
+def get_wally_package_nickname(package_wally_path: str, prefix: str="ToolGen") -> str:
 	wally_config = toml.loads(open("wally.toml", "r").read())
 	generated_nickname = (package_wally_path.split("/")[1].split("@")[0]).title()
 	for nickname, package_path in wally_config["dependencies"].items():
 		if nickname == generated_nickname:
-			generated_nickname = "Midas"+generated_nickname.title()
+			generated_nickname = prefix+"_"+generated_nickname.title()
 		if package_wally_path == package_path:
 			return nickname
 
