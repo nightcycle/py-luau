@@ -5,14 +5,23 @@ import toml
 FOREMAN_DEFAULT_PATH = "foreman.toml"
 AFTMAN_DEFAULT_PATH = "aftman.toml"
 
-def get_tool_name(source: str, version: str, prefix:str = "ToolGen") -> str:
+def get_tool_name(source: str, version: str) -> str:
 	alt_nickname = source.split("/")[len(source.split("/"))-1]
+	
+	version_str = version.replace(".","_").lower()
+	if version_str[0] == "v":
+		version_str = version_str[1:]
+
+	version_str = "_VERSION_"+version_str
+
 	if os.path.exists(FOREMAN_DEFAULT_PATH):
 		foreman_config = toml.loads(open(FOREMAN_DEFAULT_PATH, "r").read())
 		foreman_tools = foreman_config["tools"]
+
+
 		for nickname, entry in foreman_tools.items():
 			if nickname == alt_nickname:
-				alt_nickname = prefix+"_"+alt_nickname
+				alt_nickname = alt_nickname+version_str
 
 			if "source" in entry and "version" in entry:
 				if entry["source"] == source and entry["version"] == version:
@@ -37,7 +46,7 @@ def get_tool_name(source: str, version: str, prefix:str = "ToolGen") -> str:
 		aft_path = source+"@"+version
 		for nickname, path in aftman_tools.items():
 			if nickname == alt_nickname:
-				alt_nickname = prefix+"_"+alt_nickname
+				alt_nickname = alt_nickname+version_str
 			if path == aft_path:
 				return path
 		

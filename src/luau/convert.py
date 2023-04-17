@@ -1,3 +1,4 @@
+import dpath
 
 READ_STR_AS_LITERAL_PREFIX = "<LITERAL_STRING_START>_!_"
 READ_STR_AS_LITERAL_SUFFIX = "_!_<LITERAL_STRING_END>"
@@ -14,11 +15,11 @@ def _get_indent(indent_count: int) -> str:
 def from_bool(value: bool, indent_count=0, add_comma_at_end=False) -> str:
 	return _get_indent(indent_count) + str(value).lower() + _insert_comma(add_comma_at_end)
 
+def get_if_literal(value: str):
+	return (READ_STR_AS_LITERAL_PREFIX == value[0:len(READ_STR_AS_LITERAL_PREFIX)]) or value.find(READ_STR_AS_LITERAL_SUFFIX) != -1
+
 def from_str(value: str, indent_count=0, add_comma_at_end=False) -> str:
-	suffix_index = value.find(READ_STR_AS_LITERAL_SUFFIX)
-	
-	starts_with_prefix = READ_STR_AS_LITERAL_PREFIX == value[0:len(READ_STR_AS_LITERAL_PREFIX)]
-	if starts_with_prefix and suffix_index != -1:
+	if get_if_literal(value):
 		raw_val = value.replace(READ_STR_AS_LITERAL_PREFIX, "").replace(READ_STR_AS_LITERAL_SUFFIX, "")
 		return _get_indent(indent_count) + raw_val + _insert_comma(add_comma_at_end)
 	else:
@@ -29,7 +30,6 @@ def from_number(value: int | float, indent_count=0, add_comma_at_end=False) -> s
 
 def from_nil(indent_count=0, add_comma_at_end=False) -> str:
 	return f"{_get_indent(indent_count)} nil" + _insert_comma(add_comma_at_end)
-
 
 def from_list(value: list, indent_count=0, add_comma_at_end=False, multi_line=True, skip_initial_indent=False):
 	
@@ -77,11 +77,19 @@ def from_dict(value: dict, indent_count=0, add_comma_at_end=False, multi_line=Tr
 	# iterate through key-val pairs
 	for k, v in value.items():
 
+		is_literal = get_if_literal(k)
+
 		# write entry
 		if type(v) == dict or type(v) == list:
-			entry = f"[{from_any(k, 0, False)}] = {from_any(v, indent_count+1, False, multi_line, True)}" + _insert_comma(True)
+			if is_literal:
+				entry = f"{from_any(k, 0, False)} = {from_any(v, indent_count+1, False, multi_line, True)}" + _insert_comma(True)
+			else:
+				entry = f"[{from_any(k, 0, False)}] = {from_any(v, indent_count+1, False, multi_line, True)}" + _insert_comma(True)
 		else:
-			entry = f"[{from_any(k, 0, False)}] = {from_any(v, 0, False, multi_line, True)}" + _insert_comma(True)
+			if is_literal:
+				entry = f"{from_any(k, 0, False)} = {from_any(v, 0, False, multi_line, True)}" + _insert_comma(True)
+			else:
+				entry = f"[{from_any(k, 0, False)}] = {from_any(v, 0, False, multi_line, True)}" + _insert_comma(True)
 
 		# add it to existing string
 		if multi_line:
@@ -101,6 +109,29 @@ def from_dict(value: dict, indent_count=0, add_comma_at_end=False, multi_line=Tr
 		return _get_indent(0) + list_val + _insert_comma(add_comma_at_end)
 	else:
 		return _get_indent(indent_count) + list_val + _insert_comma(add_comma_at_end)
+
+def from_dict_to_type(type_value: dict, indent_count=0, add_comma_at_end=False, multi_line=True, skip_initial_indent=False) -> str:
+	out = {}
+	for path, value in dpath.search(type_value, '**', yielded=True):
+		literal_path_keys = []
+		for key in path.split("/"):
+			literal_path_keys.append(mark_as_literal(key))
+
+		literal_path = "/".join(literal_path_keys)
+
+		if value == bool or type(value) == bool:
+			dpath.new(out, literal_path, mark_as_literal("boolean"))
+		elif value == int or value == float or type(value) == int or type(value) == float:
+			dpath.new(out, literal_path, mark_as_literal("number"))
+		elif value == str:
+			dpath.new(out, literal_path, mark_as_literal("string"))	
+		elif type(value) == str:
+			if get_if_literal(value):
+				dpath.new(out, literal_path, value)
+			else:
+				dpath.new(out, literal_path, mark_as_literal("string"))	
+
+	return from_dict(out, indent_count, add_comma_at_end, multi_line, skip_initial_indent).replace(" = ", ": ")
 
 def from_any(
 	value: int | str | None | float | dict | list = None, 

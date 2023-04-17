@@ -1,5 +1,3 @@
-from .tool import get_tool_name as get_tool_name
-
 DEFAULT_ROJO_PROJECT_PATH: str
 ROJO_SOURCE: str
 ROJO_VERSION: str

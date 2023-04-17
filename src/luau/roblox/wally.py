@@ -26,12 +26,25 @@ def update_wally():
 	build_sourcemap()
 	os.system(f"{wpt_tool_name} --sourcemap sourcemap.json Packages")
 
-def get_wally_package_nickname(package_wally_path: str, prefix: str="ToolGen") -> str:
+def get_wally_package_nickname(package_wally_path: str) -> str:
 	wally_config = toml.loads(open("wally.toml", "r").read())
 	generated_nickname = (package_wally_path.split("/")[1].split("@")[0]).title()
+	name_parts = generated_nickname.split("-")
+	for i, name_part in enumerate(name_parts):
+		name_parts[i] = name_part.title()
+
+	generated_nickname = "".join(name_parts)
+
+	version = package_wally_path.split("@")[1]
+	version_str = version.replace(".","_").lower()
+	if version_str[0] == "v":
+		version_str = version_str[1:]
+
+	version_str = "_VERSION_"+version_str
+
 	for nickname, package_path in wally_config["dependencies"].items():
 		if nickname == generated_nickname:
-			generated_nickname = prefix+"_"+generated_nickname.title()
+			generated_nickname = generated_nickname + version_str
 		if package_wally_path == package_path:
 			return nickname
 
