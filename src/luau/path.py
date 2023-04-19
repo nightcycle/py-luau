@@ -1,4 +1,5 @@
 import os
+import shutil
 from typing import Literal
 
 def set_language_ext(path: str, desired_ext: Literal["luau", "lua"]) -> str:
@@ -69,6 +70,10 @@ def insert_domain(build_path: str, domain: str) -> str:
 
 def remove_all_path_variants(path: str, domain: str=""):
 	alt_ext_path = get_alt_ext_path(path)
+
+	base_path = strip_full_ext(path)
+	if os.path.exists(base_path):
+		shutil.rmtree(base_path)
 
 	if os.path.exists(path):
 		os.remove(path)

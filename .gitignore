@@ -3,3 +3,4 @@ build/**
 luau.egg-info
 .pypirc
 scripts/upload.sh
+default.project.json

@@ -1,4 +1,6 @@
 import os
+import dpath
+import json
 from .tool import get_tool_name
 
 DEFAULT_ROJO_PROJECT_PATH = "default.project.json"
@@ -23,3 +25,31 @@ def build_sourcemap(project_json_path: str = ""):
 	if project_json_path == "":
 		project_json_path = get_rojo_project_path()
 	os.system(f"{get_rojo_name()} sourcemap {project_json_path} --output sourcemap.json")	
+
+def get_roblox_path_from_env_path(env_path: str) -> str:
+	project_path = get_rojo_project_path()
+	rojo_file = open(project_path, "r")
+	rojo_config = json.loads(rojo_file.read())
+	rojo_file.close()
+	tree_config = rojo_config["tree"]
+	options = {}
+	env_length = len(env_path.split("/"))
+	best_env_path = ""
+	best_env_length = 0
+	for tree_path, tree_val in dpath.search(tree_config, '**', yielded=True):
+		keys = tree_path.split("/")
+		final_key = keys[len(keys)-1]
+		if final_key == "$path" and len(keys) > 1:
+			ro_path = "game/" + "/".join(keys[0:(len(keys)-1)])
+			options[tree_val] = ro_path
+			val_length = len(tree_val.split("/"))
+			if val_length <= env_length and best_env_length < val_length:
+				pattern = env_path[0:len(tree_val)]
+				if pattern == tree_val:
+					best_env_path = tree_val
+					best_env_length = val_length
+
+	conclusion = env_path[(len(best_env_path)):]
+	final = options[best_env_path] + conclusion
+
+	return final.split(".")[0]

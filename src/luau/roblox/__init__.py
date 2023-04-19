@@ -14,9 +14,10 @@ def write_script(build_path: str, content: str, write_as_directory: bool=False):
 
 	if write_as_directory:
 		full_dir_path = build_path.split(".")[0]
-		os.makedirs(full_dir_path)
 		full_ext = ".".join(build_path.split(".")[1:])
-		init_file_path = dir_name+"/init."+full_ext
+		final_dir_path = (dir_name+"/"+file_name).replace(full_ext, "")
+		os.makedirs(final_dir_path)
+		init_file_path = final_dir_path+"/init."+full_ext
 		out_file = open(init_file_path, "w")
 		out_file.write(content)
 		out_file.close()
