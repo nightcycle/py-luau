@@ -1,7 +1,8 @@
 import os
 import toml
+from .util import run_bundled_exe
 from .tool import get_tool_name
-from .rojo import get_rojo_project_path, get_rojo_name, build_sourcemap
+from .rojo import get_rojo_project_path, build_sourcemap
 
 WALLY_SOURCE = "UpliftGames/wally"
 WALLY_VERSION = "0.3.1"
@@ -11,20 +12,14 @@ WPT_VERSION = "1.2.0"
 def get_wally_name():
 	return get_tool_name(WALLY_SOURCE, WALLY_VERSION)
 
-def get_wally_package_types_name():
-	return get_tool_name(WPT_SOURCE, WPT_VERSION)
-
 def update_wally():
 
 	project_path = get_rojo_project_path()
-
 	wally_tool_name = get_wally_name()
-	rojo_tool_name = get_rojo_name()
-	wpt_tool_name = get_wally_package_types_name()
 
 	os.system(f"{wally_tool_name} install")
 	build_sourcemap()
-	os.system(f"{wpt_tool_name} --sourcemap sourcemap.json Packages")
+	run_bundled_exe(exe_name="wally-package-types.exe", args=["--sourcemap", "sourcemap.json", "Packages"])
 
 def get_wally_package_nickname(package_wally_path: str) -> str:
 	wally_config = toml.loads(open("wally.toml", "r").read())

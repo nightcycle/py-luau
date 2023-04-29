@@ -1,7 +1,7 @@
 import os
 import dpath
 import json
-from .tool import get_tool_name
+from .util import run_bundled_exe
 
 DEFAULT_ROJO_PROJECT_PATH = "default.project.json"
 ROJO_SOURCE = "rojo-rbx/rojo"
@@ -18,13 +18,10 @@ def get_rojo_project_path() -> str:
 				if sec_ext== ".project":
 					return file_path
 
-def get_rojo_name() -> str:
-	return get_tool_name(ROJO_SOURCE, ROJO_VERSION)
-
 def build_sourcemap(project_json_path: str = ""):
 	if project_json_path == "":
 		project_json_path = get_rojo_project_path()
-	os.system(f"{get_rojo_name()} sourcemap {project_json_path} --output sourcemap.json")	
+	run_bundled_exe(exe_name="rojo.exe", args=["sourcemap", project_json_path, "--output", "sourcemap.json"])
 
 def get_roblox_path_from_env_path(env_path: str) -> str:
 	project_path = get_rojo_project_path()

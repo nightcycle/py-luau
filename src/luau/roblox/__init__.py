@@ -1,9 +1,10 @@
 import os
-from .tool import get_tool_name
+from .util import run_bundled_exe
 
 def format(path: str):
-	stylua_tool_name = get_tool_name("JohnnyMorganz/StyLua", "0.15.3")
-	os.system(f"{stylua_tool_name} {path}")
+	# stylua_tool_name = get_tool_name("JohnnyMorganz/StyLua", "0.15.3")
+	# os.system(f"{stylua_tool_name} {path}")
+	run_bundled_exe(exe_name="stylua.exe", args=[path])
 
 def write_script(build_path: str, content: str, write_as_directory: bool=False):
 	dir_name, file_name = os.path.split(build_path)
