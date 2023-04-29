@@ -4,3 +4,9 @@ luau.egg-info
 .pypirc
 scripts/upload.sh
 default.project.json
+options.json
+api.json
+out.json
+literals.json
+api_old.py
+instance_text.json
