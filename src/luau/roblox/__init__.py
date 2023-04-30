@@ -36,9 +36,10 @@ def write_script(build_path: str, content: str, write_as_directory: bool=False, 
 		out_file.close()
 		format(init_file_path)
 
-		zip_ref = ZipFile(packages_dir_zip_file_path, 'r')
-		zip_ref.extractall(final_dir_path)
-		zip_ref.close()
+		if packages_dir_zip_file_path != None:
+			zip_ref = ZipFile(packages_dir_zip_file_path, 'r')
+			zip_ref.extractall(final_dir_path)
+			zip_ref.close()
 
 	else:
 		out_file = open(build_path, "w")
