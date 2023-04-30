@@ -4,7 +4,7 @@
 
 [project]
 	name = "luau"
-	version = "0.4.18"
+	version = "0.4.19"
 	authors = [
 		{ name="nightcycle", email="coyer@nightcycle.us" },
 	]

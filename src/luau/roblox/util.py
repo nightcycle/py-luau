@@ -1,4 +1,5 @@
 import os
+import sys
 from pkg_resources import resource_filename
 
 def get_instance_from_path(path: str) -> str:
@@ -24,7 +25,10 @@ def run_bundled_exe(exe_name: str, args: list[str]=[]):
 	abs_path = resource_filename('luau', f'data/{exe_name}.exe')
 	arg_command = " ".join(args)
 	sys_command = " ".join([abs_path, arg_command])
+
 	os.system(sys_command)
+
+
 
 def get_module_require(path: str):
 	return f"require({get_instance_from_path(path)})"

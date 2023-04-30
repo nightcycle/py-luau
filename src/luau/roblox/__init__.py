@@ -16,8 +16,10 @@ def write_script(build_path: str, content: str, write_as_directory: bool=False, 
 		write_as_directory = True
 
 	dir_name, file_name = os.path.split(build_path)
+	
 	if not os.path.exists(dir_name):
 		os.makedirs(dir_name)
+
 	elif os.path.exists(build_path):
 		os.remove(build_path)
 
