@@ -4,7 +4,7 @@
 
 [project]
 	name = "luau"
-	version = "0.4.0"
+	version = "0.4.17"
 	authors = [
 		{ name="nightcycle", email="coyer@nightcycle.us" },
 	]
@@ -12,7 +12,7 @@
 		"dpath~=2.1.5",
 		"toml~=0.10.2",
 		"requests~=2.28.2",
-		"types-toml~=0.10.8.6"
+		"types-toml~=0.10.8.6",
 	]
 	description = "a basic python package for writing luau scripts"
 	readme = "README.md"

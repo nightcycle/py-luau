@@ -12,23 +12,23 @@ def _insert_comma(enabled: bool) -> str:
 def _get_indent(indent_count: int) -> str:
 	return "\t"*indent_count
 
-def from_bool(value: bool, indent_count=0, add_comma_at_end=False) -> str:
+def _from_bool(value: bool, indent_count=0, add_comma_at_end=False) -> str:
 	return _get_indent(indent_count) + str(value).lower() + _insert_comma(add_comma_at_end)
 
 def get_if_literal(value: str):
 	return (READ_STR_AS_LITERAL_PREFIX == value[0:len(READ_STR_AS_LITERAL_PREFIX)]) or value.find(READ_STR_AS_LITERAL_SUFFIX) != -1
 
-def from_str(value: str, indent_count=0, add_comma_at_end=False) -> str:
+def _from_str(value: str, indent_count=0, add_comma_at_end=False) -> str:
 	if get_if_literal(value):
 		raw_val = value.replace(READ_STR_AS_LITERAL_PREFIX, "").replace(READ_STR_AS_LITERAL_SUFFIX, "")
 		return _get_indent(indent_count) + raw_val + _insert_comma(add_comma_at_end)
 	else:
 		return _get_indent(indent_count) + f"\"{value}\"" + _insert_comma(add_comma_at_end)
 
-def from_number(value: int | float, indent_count=0, add_comma_at_end=False) -> str:
+def _from_number(value: int | float, indent_count=0, add_comma_at_end=False) -> str:
 	return _get_indent(indent_count) + str(value) + _insert_comma(add_comma_at_end)
 
-def from_nil(indent_count=0, add_comma_at_end=False) -> str:
+def _from_nil(indent_count=0, add_comma_at_end=False) -> str:
 	return f"{_get_indent(indent_count)} nil" + _insert_comma(add_comma_at_end)
 
 def from_list(value: list, indent_count=0, add_comma_at_end=False, multi_line=True, skip_initial_indent=False):
@@ -150,15 +150,15 @@ def from_any(
 		return from_dict(value, indent_count, add_comma_at_end, multi_line, skip_initial_indent)
 
 	elif type(value) == float or type(value) == int:
-		return from_number(value, indent_count, add_comma_at_end)
+		return _from_number(value, indent_count, add_comma_at_end)
 		
 	elif type(value) == bool:
-		return from_bool(value, indent_count, add_comma_at_end)
+		return _from_bool(value, indent_count, add_comma_at_end)
 		
 	elif type(value) == str:
-		return from_str(value, indent_count, add_comma_at_end)
+		return _from_str(value, indent_count, add_comma_at_end)
 		
-	return from_nil(indent_count, add_comma_at_end)
+	return _from_nil(indent_count, add_comma_at_end)
 
 
 # allows for processing of text in the other methods as is without being wrapped in quotes as a string

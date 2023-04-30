@@ -16,7 +16,7 @@ def get_if_path_is_list_descendant(path: str) -> bool:
 	exception = 0
 	for v in keys:
 		try:
-			v = int(v)
+			iv = int(v)
 			return True
 		except:
 			exception += 1
@@ -25,7 +25,7 @@ def get_if_path_is_list_descendant(path: str) -> bool:
 # Define a custom filter function to ignore branches that are descendants of lists
 def iterate_tree(tree: dict) -> dict[str, list[Any]]:
 	# Search for all keys and values in the tree using dpath's search function with the custom filter
-	output = {}
+	output: dict[str, list[Any]] = {}
 	for path, value in dpath.search(tree, '**', yielded=True):
 		if not isinstance(value, dict) and not isinstance(value, list) and type(value) == str:
 			is_list_desc = get_if_path_is_list_descendant(path)
@@ -44,7 +44,7 @@ def build(build_path="src/luau/roblox/api.py"):
 
 	value_registry = {}
 
-	def append_out(tree_pairs: dict[str, any], prefix=""):
+	def append_out(tree_pairs: dict[str, list], prefix=""):
 		for k, v in tree_pairs.items():
 			k = prefix + k
 			if not k in value_registry:
