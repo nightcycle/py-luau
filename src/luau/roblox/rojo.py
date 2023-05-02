@@ -8,10 +8,12 @@ DEFAULT_ROJO_PROJECT_PATH = "default.project.json"
 ROJO_SOURCE = "rojo-rbx/rojo"
 ROJO_VERSION = "7.1.0"
 
-def get_rojo_project_path() -> str:
+def get_rojo_project_path(default_path: str | None = None) -> str:
+	if default_path != None:
+		return default_path
 	if os.path.exists(DEFAULT_ROJO_PROJECT_PATH):
 		return DEFAULT_ROJO_PROJECT_PATH
-	for file_path in os.listdir(""):
+	for file_path in os.listdir(os.path.abspath("")):
 		if os.path.isfile(file_path):
 			base, ext = os.path.splitext(file_path)
 			if ext == ".json":
@@ -19,15 +21,11 @@ def get_rojo_project_path() -> str:
 				if sec_ext== ".project":
 					return file_path
 
-def build_sourcemap(project_json_path: str = ""):
-	if project_json_path == "":
-		project_json_path = get_rojo_project_path()
-	
-	run_bundled_exe(exe_name="py_luau_rojo.exe", args=["sourcemap", project_json_path, "--output", "sourcemap.json"])
+def build_sourcemap(project_json_path: str | None = None):
+	run_bundled_exe(exe_name="py_luau_rojo.exe", args=["sourcemap", get_rojo_project_path(project_json_path), "--output", "sourcemap.json"])
 
-
-def get_roblox_path_from_env_path(env_path: str) -> str:
-	project_path = get_rojo_project_path()
+def get_roblox_path_from_env_path(env_path: str, rojo_project_path: None | str = None) -> str:
+	project_path = get_rojo_project_path(rojo_project_path)
 	rojo_file = open(project_path, "r")
 	rojo_config = json.loads(rojo_file.read())
 	rojo_file.close()

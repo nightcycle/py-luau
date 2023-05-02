@@ -10,7 +10,14 @@ def format(path: str):
 def get_package_require(package_name: str, package_directory_name="Packages") -> str:
 	return get_module_require(f"script/{package_directory_name}/{package_name}")
 
-def write_script(build_path: str, content: str, write_as_directory: bool=False, packages_dir_zip_file_path: str | None = None, skip_source_map=False):
+def write_script(
+	build_path: str, 
+	content: str, 
+	write_as_directory: bool=False, 
+	packages_dir_zip_file_path: str | None = None, 
+	skip_source_map=False,
+	rojo_project_path: None | str = None
+):
 
 	if packages_dir_zip_file_path != None:
 		write_as_directory = True
@@ -50,4 +57,4 @@ def write_script(build_path: str, content: str, write_as_directory: bool=False, 
 		format(build_path)
 
 	if not skip_source_map:
-		build_sourcemap(project_json_path=get_rojo_project_path())
+		build_sourcemap(project_json_path=get_rojo_project_path(rojo_project_path))

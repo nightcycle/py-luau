@@ -25,8 +25,11 @@ def run_bundled_exe(exe_name: str, args: list[str]=[]):
 	abs_path = resource_filename('luau', f'data/{exe_name}.exe')
 	arg_command = " ".join(args)
 	sys_command = " ".join([abs_path, arg_command])
-
-	os.system(sys_command)
+	sys_command = sys_command.replace("\"", "\\\"")
+	bash_command = f"bash -c \"{sys_command} > /dev/null 2>&1\""
+	# print(f"bash_cmd: {bash_command}")
+	os.system(bash_command)
+	# os.system(sys_command)
 
 
 
