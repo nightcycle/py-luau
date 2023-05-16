@@ -10,4 +10,4 @@ out.json
 literals.json
 api_old.py
 instance_text.json
-scripts\auth_publish.sh
+scripts/auth.sh

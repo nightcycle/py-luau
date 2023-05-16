@@ -1,1 +1,0 @@
-scripts/publish.sh nightcycle yHEc3E7sXx4DCP
